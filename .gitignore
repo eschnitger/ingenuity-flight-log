@@ -1,0 +1,18 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+
+# Python
+__pycache__/
+
+# Local shinylive builds (CI builds and deploys its own)
+site/
+docs_preview/
+
+# Regenerable, large
+data/mars_basemap.png
+tableau/mars_terrain_tableau.png
+
+# OS
+.DS_Store

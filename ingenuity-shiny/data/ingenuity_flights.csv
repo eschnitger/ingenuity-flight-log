@@ -1,0 +1,73 @@
+flight_num,sol,earth_date,duration_s,max_alt_m,distance_m,battery_start_pct,battery_end_pct,images_taken,science_measurements,flight_type,notes,battery_used,speed_ms,days_since_f1,mission_phase,age_bucket,anomaly_flag,record_flag,cumulative_distance_m,cumulative_duration_s,cumulative_images,cumulative_science,cumulative_battery_used
+1,58,2021-04-19,39.1,3.0,0,93,88,0,0,tech_demo,First powered flight on another planet,5,0.0,0,Tech Demo,Early (1-24),False,False,0,39.1,0,0,5
+2,61,2021-04-22,51.9,5.0,0,91,85,0,0,tech_demo,First color image from hover,6,0.0,3,Tech Demo,Early (1-24),False,False,0,91.0,0,0,11
+3,64,2021-04-25,80.3,5.0,50,92,84,10,0,tech_demo,First downrange flight,8,0.62,6,Tech Demo,Early (1-24),False,False,50,171.3,10,0,19
+4,69,2021-04-30,117.0,5.0,133,90,81,60,0,tech_demo,Farthest/fastest flight to date,9,1.14,11,Tech Demo,Early (1-24),False,True,183,288.3,70,0,28
+5,76,2021-05-07,108.0,5.0,129,91,82,10,0,tech_demo,Round trip to new waypoint,9,1.19,18,Tech Demo,Early (1-24),False,False,312,396.3,80,0,37
+6,91,2021-05-22,140.0,10.0,215,90,79,20,2,ops,"First operational flight, new airfield",11,1.54,33,Early Ops,Early (1-24),False,False,527,536.3,100,2,48
+7,97,2021-05-29,62.8,10.0,106,89,82,15,2,ops,Scout for Perseverance,7,1.69,40,Early Ops,Early (1-24),False,False,633,599.0999999999999,115,4,55
+8,102,2021-06-05,77.4,10.0,160,91,83,18,2,scout,Scouting Séítah region,8,2.07,47,Early Ops,Early (1-24),False,False,793,676.4999999999999,133,6,63
+9,107,2021-06-12,166.4,10.0,625,90,77,35,3,scout,Longest flight to date,13,3.76,54,Early Ops,Early (1-24),False,True,1418,842.8999999999999,168,9,76
+10,113,2021-06-19,165.4,12.0,215,92,79,28,3,scout,Ingenuity's shadow visible on surface,13,1.3,61,Early Ops,Early (1-24),False,False,1633,1008.2999999999998,196,12,89
+11,117,2021-06-23,130.7,12.0,360,90,80,22,3,scout,South Séítah scout,10,2.75,65,Early Ops,Early (1-24),False,False,1993,1138.9999999999998,218,15,99
+12,121,2021-06-29,169.5,10.0,450,91,78,30,4,scout,Southernmost point so far,13,2.65,71,Early Ops,Early (1-24),False,False,2443,1308.4999999999998,248,19,112
+13,126,2021-07-04,160.5,8.0,222,89,80,26,4,scout,July 4th flight,9,1.38,76,Early Ops,Early (1-24),False,False,2665,1468.9999999999998,274,23,121
+14,130,2021-07-11,101.9,5.0,393,90,82,16,3,scout,Return to Wright Brothers Field area,8,3.86,83,Early Ops,Early (1-24),False,False,3058,1570.8999999999999,290,26,129
+15,135,2021-07-19,176.3,10.0,689,91,77,40,4,scout,New distance record: 689m,14,3.91,91,Séítah,Early (1-24),False,True,3747,1747.1999999999998,330,30,143
+16,138,2021-07-22,109.0,10.0,588,90,80,25,4,scout,Delta region approach,10,5.39,94,Séítah,Early (1-24),False,False,4335,1856.1999999999998,355,34,153
+17,142,2021-07-29,114.9,10.0,142,89,81,20,3,ops,Surveying ancient river delta,8,1.24,101,Séítah,Early (1-24),False,False,4477,1971.1,375,37,161
+18,146,2021-08-04,61.7,10.0,34,91,85,10,2,ops,Repositioning flight,6,0.55,107,Séítah,Early (1-24),False,False,4511,2032.8,385,39,167
+19,152,2021-08-10,129.4,10.0,188,90,80,22,3,scout,Searching for Perseverance landing hardware,10,1.45,113,Séítah,Early (1-24),False,False,4699,2162.2,407,42,177
+20,164,2021-08-23,130.3,10.0,392,89,79,28,4,scout,First flight since software update,10,3.01,126,Séítah,Early (1-24),False,False,5091,2292.5,435,46,187
+21,172,2021-09-03,121.5,10.0,370,90,80,24,4,scout,Artuby ridge survey,10,3.05,137,Séítah,Early (1-24),False,False,5461,2414.0,459,50,197
+22,177,2021-09-09,129.5,10.0,382,91,80,26,4,scout,Crater rim scouting,11,2.95,143,Séítah,Early (1-24),False,False,5843,2543.5,485,54,208
+23,181,2021-09-14,130.9,10.0,458,90,79,28,4,scout,Approaching Raised Ridges,11,3.5,148,Séítah,Early (1-24),False,False,6301,2674.4,513,58,219
+24,185,2021-09-18,169.5,10.0,616,89,77,38,5,scout,Scouting Raised Ridges,12,3.63,152,Séítah,Early (1-24),False,False,6917,2843.9,551,63,231
+25,196,2021-09-30,129.0,10.0,704,91,79,32,5,scout,Longest distance yet: 704m,12,5.46,164,Séítah,Middle (25-48),False,True,7621,2972.9,583,68,243
+26,200,2021-10-08,125.0,10.0,574,90,80,30,5,scout,Escaping Séítah,10,4.59,172,Séítah,Middle (25-48),False,False,8195,3097.9,613,73,253
+27,204,2021-10-24,65.0,10.0,122,91,84,14,2,ops,Short repositioning,7,1.88,188,Séítah,Middle (25-48),False,False,8317,3162.9,627,75,260
+28,211,2021-11-02,117.8,10.0,160,89,81,20,3,ops,South Séítah departure,8,1.36,197,Séítah,Middle (25-48),False,False,8477,3280.7000000000003,647,78,268
+29,218,2021-11-11,126.0,10.0,372,90,80,26,4,scout,Transition toward delta,10,2.95,206,Séítah,Middle (25-48),False,False,8849,3406.7000000000003,673,82,278
+30,228,2021-11-21,54.3,10.0,94,91,85,12,2,ops,Short repositioning hop,6,1.73,216,Séítah,Middle (25-48),False,False,8943,3461.0000000000005,685,84,284
+31,237,2021-12-02,88.4,10.0,202,90,82,18,3,scout,Approaching delta front,8,2.29,227,Séítah,Middle (25-48),False,False,9145,3549.4000000000005,703,87,292
+32,245,2021-12-12,109.1,10.0,348,89,80,24,4,scout,Delta fan front survey,9,3.19,237,Séítah,Middle (25-48),False,False,9493,3658.5000000000005,727,91,301
+33,249,2021-12-18,56.4,10.0,35,91,85,10,2,ops,Minor repositioning,6,0.62,243,Séítah,Middle (25-48),False,False,9528,3714.9000000000005,737,93,307
+34,257,2021-12-29,117.0,10.0,141,90,81,20,3,ops,Year-end survey flight,9,1.21,254,Séítah,Middle (25-48),False,False,9669,3831.9000000000005,757,96,316
+35,263,2022-01-06,109.6,10.0,310,89,81,22,4,scout,New year scouting,8,2.83,262,Séítah,Middle (25-48),False,False,9979,3941.5000000000005,779,100,324
+36,267,2022-01-10,167.7,10.0,528,90,77,36,5,scout,Approaching Kodiak butte,13,3.15,266,Delta Approach,Middle (25-48),False,False,10507,4109.200000000001,815,105,337
+37,277,2022-01-22,160.0,12.0,482,91,78,34,5,scout,Kodiak butte approach,13,3.01,278,Delta Approach,Middle (25-48),False,False,10989,4269.200000000001,849,110,350
+38,285,2022-02-01,155.5,12.0,389,90,78,32,5,scout,Surveying Kodiak,12,2.5,288,Delta Approach,Middle (25-48),False,False,11378,4424.700000000001,881,115,362
+39,290,2022-02-09,117.0,10.0,319,89,80,24,4,scout,Post-Kodiak repositioning,9,2.73,296,Delta Approach,Middle (25-48),False,False,11697,4541.700000000001,905,119,371
+40,295,2022-02-16,157.4,12.0,428,91,78,30,5,scout,Hawksbill Gap approach,13,2.72,303,Delta Approach,Middle (25-48),False,False,12125,4699.1,935,124,384
+41,302,2022-02-26,136.9,10.0,342,90,79,26,4,scout,Entering Hawksbill Gap,11,2.5,313,Delta Approach,Middle (25-48),False,False,12467,4836.0,961,128,395
+42,308,2022-03-08,97.5,10.0,246,89,82,20,3,scout,Through the gap,7,2.52,323,Delta Approach,Middle (25-48),False,False,12713,4933.5,981,131,402
+43,316,2022-03-16,161.3,12.0,478,90,77,32,5,scout,Upper delta approach,13,2.96,331,Delta Approach,Middle (25-48),False,False,13191,5094.8,1013,136,415
+44,323,2022-03-24,128.6,12.0,340,91,79,26,5,science,Delta stratigraphy imaging,12,2.64,339,Delta Approach,Middle (25-48),False,False,13531,5223.400000000001,1039,141,427
+45,330,2022-04-01,123.8,10.0,296,90,80,24,6,science,First dedicated science flight,10,2.39,347,Delta Approach,Middle (25-48),False,False,13827,5347.200000000001,1063,147,437
+46,335,2022-04-08,186.0,12.0,565,89,76,42,6,science,Detailed delta layer imaging,13,3.04,354,Delta Approach,Middle (25-48),False,False,14392,5533.200000000001,1105,153,450
+47,350,2022-04-24,124.0,12.0,297,91,80,26,6,science,Castaic Lake area survey,11,2.4,370,Delta Approach,Middle (25-48),False,False,14689,5657.200000000001,1131,159,461
+48,357,2022-05-03,174.9,12.0,466,90,77,36,7,science,Extended science run,13,2.66,379,Delta Approach,Middle (25-48),False,False,15155,5832.1,1167,166,474
+49,362,2022-05-09,106.0,12.0,268,89,81,22,5,scout,Repositioning toward Belva,8,2.53,385,Delta Approach,Late (49-72),False,False,15423,5938.1,1189,171,482
+50,371,2022-05-20,146.7,10.0,346,90,79,28,5,scout,Flight 50 milestone,11,2.36,396,Delta Approach,Late (49-72),False,False,15769,6084.8,1217,176,493
+51,382,2022-06-02,136.0,10.0,280,91,80,24,5,scout,Escaping Belva crater approach,11,2.06,409,Delta Approach,Late (49-72),False,False,16049,6220.8,1241,181,504
+52,389,2022-06-11,162.4,12.0,404,89,77,32,6,science,Belva crater rim imaging,12,2.49,418,Delta Approach,Late (49-72),False,False,16453,6383.2,1273,187,516
+53,399,2022-06-24,174.0,14.0,469,90,76,38,6,science,First 14m altitude flight,14,2.7,431,Delta Approach,Late (49-72),False,True,16922,6557.2,1311,193,530
+54,409,2022-07-09,148.7,14.0,360,91,78,30,6,science,Northern delta scouting,13,2.42,446,Delta Approach,Late (49-72),False,False,17282,6705.9,1341,199,543
+55,426,2022-07-29,142.0,14.0,311,90,79,28,5,scout,Reconnecting with Perseverance,11,2.19,466,Delta Approach,Late (49-72),False,False,17593,6847.9,1369,204,554
+56,435,2022-08-09,147.0,12.0,359,89,79,30,5,scout,Upper fan survey,10,2.44,477,Delta Approach,Late (49-72),False,False,17952,6994.9,1399,209,564
+57,451,2022-08-31,157.0,12.0,411,90,78,32,6,science,Berry hollow imaging,12,2.62,499,Delta Approach,Late (49-72),False,False,18363,7151.9,1431,215,576
+58,460,2022-09-12,162.0,14.0,438,91,77,34,6,science,Detailed stratigraphy,14,2.7,511,Delta Science,Late (49-72),False,False,18801,7313.9,1465,221,590
+59,474,2022-10-01,142.0,12.0,304,90,79,28,5,scout,Reconnect with rover,11,2.14,530,Delta Science,Late (49-72),False,False,19105,7455.9,1493,226,601
+60,480,2022-10-08,148.5,14.0,332,89,78,30,6,science,Mt. Julian approach,11,2.24,537,Delta Science,Late (49-72),False,False,19437,7604.4,1523,232,612
+61,490,2022-10-19,110.0,14.0,284,91,81,20,4,ops,Unscheduled early landing — nav anomaly,10,2.58,548,Delta Science,Late (49-72),True,False,19721,7714.4,1543,236,622
+62,497,2022-10-27,160.0,12.0,202,90,79,26,5,ops,Resuming after anomaly investigation,11,1.26,556,Delta Science,Late (49-72),False,False,19923,7874.4,1569,241,633
+63,508,2022-11-09,126.9,12.0,279,89,80,24,5,scout,Mt. Julian survey,9,2.2,569,Delta Science,Late (49-72),False,False,20202,8001.299999999999,1593,246,642
+64,522,2022-11-28,169.0,14.0,467,90,77,36,7,science,New altitude tied at 14m,13,2.76,588,Delta Science,Late (49-72),False,False,20669,8170.299999999999,1629,253,655
+65,535,2022-12-15,128.7,14.0,302,91,79,26,6,science,Year-end science flight,12,2.35,605,Delta Science,Late (49-72),False,False,20971,8299.0,1655,259,667
+66,551,2023-01-06,110.0,12.0,212,90,81,20,4,ops,New Year repositioning,9,1.93,627,Delta Science,Late (49-72),False,False,21183,8409.0,1675,263,676
+67,569,2023-01-29,113.7,14.0,235,89,80,22,5,scout,Airspeed survey flight,9,2.07,650,Delta Science,Late (49-72),False,False,21418,8522.7,1697,268,685
+68,584,2023-02-18,148.0,14.0,349,90,78,30,6,science,Upper Jezero rim approach,12,2.36,670,Delta Science,Late (49-72),False,False,21767,8670.7,1727,274,697
+69,598,2023-03-09,136.0,14.0,312,91,79,26,6,science,Spring science run,12,2.29,689,Delta Science,Late (49-72),False,False,22079,8806.7,1753,280,709
+70,614,2023-03-27,100.0,17.0,179,90,82,18,4,ops,NEW altitude record: 17m,8,1.79,707,Delta Science,Late (49-72),False,True,22258,8906.7,1771,284,717
+71,643,2023-04-27,108.0,17.0,192,89,81,20,4,scout,Final scout before winter,8,1.78,738,Delta Science,Late (49-72),False,False,22450,9014.7,1791,288,725
+72,772,2024-01-18,130.3,24.0,0,91,83,10,2,ops,FINAL FLIGHT — rotor damaged on landing,8,0.0,1004,Delta Science,Late (49-72),True,True,22450,9145.0,1801,290,733

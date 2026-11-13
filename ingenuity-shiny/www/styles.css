@@ -1,0 +1,128 @@
+:root {
+  --bg: #0a0a0f;
+  --panel: #111122;
+  --border: #2a2a3a;
+  --text: #e0e0e0;
+  --muted: #8c8ca0;
+  --accent: #4ECDC4;
+  --gold: #FFD700;
+  --danger: #FF6B6B;
+}
+
+.navbar, .bslib-page-title {
+  background: linear-gradient(90deg, #0d0d1a, #111133) !important;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin: 4px 0;
+}
+
+.small-muted { font-size: 12px; color: var(--muted); margin: 2px 0; }
+
+.sidebar-no-selection {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  padding: 8px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.sidebar-flight-info {
+  background: rgba(78, 205, 196, 0.08);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+/* KPI strip */
+.kpi-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+.kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.kpi-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* Cards and tabs */
+.card { background: var(--panel) !important; border: 1px solid var(--border) !important; }
+.nav-tabs .nav-link { color: var(--muted) !important; }
+.nav-tabs .nav-link.active {
+  color: var(--accent) !important;
+  background: rgba(78, 205, 196, 0.1) !important;
+  border-color: var(--accent) !important;
+}
+
+.controls-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+/* Detail card */
+.detail-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.detail-placeholder { color: var(--muted); font-style: italic; text-align: center; padding: 40px 14px; }
+.detail-header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 12px; }
+.detail-flight-num { font-size: 1.4rem; font-weight: 700; }
+
+.badge-anomaly, .badge-record {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  float: right;
+  margin-top: 8px;
+}
+.badge-anomaly { background: rgba(255, 107, 107, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+.badge-record  { background: rgba(255, 215, 0, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+
+.metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.metric-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.metric-value { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+.metric-label { font-size: 11px; color: var(--muted); }
+.metric-sub   { font-size: 10px; color: var(--muted); }
+
+.detail-notes {
+  margin: 14px 0;
+  padding: 10px;
+  border-left: 3px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  font-style: italic;
+}
+.detail-nav { display: flex; align-items: center; justify-content: space-between; }
+
+.about-content { max-width: 680px; padding: 16px; }
+.about-content a { color: var(--accent); }
