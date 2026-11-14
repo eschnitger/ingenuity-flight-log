@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loading Ingenuity Flight Log</title>
+<style>
+  body { margin: 0; background: #0a0a0f; color: #e0e0e0;
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  main { max-width: 32rem; padding: 1.5rem; text-align: center; }
+  a { color: #4ECDC4; }
+</style>
+</head>
+<body>
+<main id="msg">Starting the app…</main>
+<script>
+// Shinylive serves the app's pages (app_*/) from a service worker. If the
+// browser asked GitHub for one before the worker took over the page (Safari
+// can do this on a first visit), reload the whole app once so the worker
+// handles it. A timestamp guard stops a reload loop when service workers are
+// unavailable, e.g. in Private Browsing.
+(function () {
+  var inApp = /\/app_[^/]+\//.test(location.pathname);
+  var home = location.pathname.split("/app_")[0] + "/";
+  var key = "shinylive-404-retry";
+  var last = 0;
+  try { last = Number(sessionStorage.getItem(key)) || 0; } catch (e) {}
+  if (inApp && Date.now() - last > 60000) {
+    try { sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
+    try { window.top.location.reload(); return; } catch (e) {}
+  }
+  document.getElementById("msg").innerHTML = inApp
+    ? "The app couldn't start. It needs service workers, which Safari turns off in " +
+      "Private Browsing. Open it in a normal window, or try " +
+      "<a href='" + home + "' target='_top'>reloading</a>."
+    : "Page not found. <a href='" + home + "' target='_top'>Go to the Ingenuity Flight Log</a>.";
+})();
+</script>
+</body>
+</html>

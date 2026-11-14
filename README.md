@@ -41,7 +41,9 @@ ingenuity_viz.py          6 Plotly charts → outputs/0*.html
 ingenuity_map.py          Plotly + Matplotlib maps → outputs/map_*.html, *.png
 tableau_export.py         Tableau CSVs + background → tableau/
 R/                        ggplot2 dashboard and maps
-ingenuity-shiny/          Shiny app (app.R, R/helpers.R, www/, data/)
+ingenuity-shiny/          Shiny app (app.R, R/, www/, data/)
+scripts/                  precompile_shiny_css.R (run before a shinylive export)
+pages/404.html            GitHub Pages fallback for the shinylive app
 .github/workflows/        shinylive → GitHub Pages deploy
 ```
 
@@ -79,7 +81,31 @@ Pushing changes under `ingenuity-shiny/` to `main` rebuilds and deploys the
 app through `.github/workflows/deploy_shinylive.yml`. To preview a build
 locally:
 
-```r
-shinylive::export("ingenuity-shiny", "site")
-httpuv::runStaticServer("site")
+```bash
+Rscript scripts/precompile_shiny_css.R
+Rscript -e 'shinylive::export("ingenuity-shiny", "site")'
+cp pages/404.html site/
+Rscript -e 'httpuv::runStaticServer("site")'
 ```
+
+### Keeping it working in Safari
+
+The app runs R in the browser, which is slower than native R and has a small
+call stack. Safari is the least forgiving: earlier versions of the app showed
+a GitHub 404 there. Two things keep it working and fast:
+
+- **A shallow page.** R walks the page's tags recursively when serving it, and
+  in Safari it ran out of stack on deeply nested tags (the request then died,
+  and Safari fell back to GitHub's 404). The static UI in `app.R` stays about
+  10 tags deep; Safari fails at about 15. Tabs with nested controls are
+  rendered by the server (`map_tab`, `anim_tab`). Avoid wrapping the tabs in
+  cards or extra layout containers.
+- **Precompiled CSS.** `scripts/precompile_shiny_css.R` compiles the theme's
+  Sass in regular R into `ingenuity-shiny/precompiled/` (not committed; CI
+  regenerates it), and `ingenuity-shiny/R/precompiled_css.R` uses it in the
+  browser. This cut startup from about 37 s to about 14 s. Re-run the script
+  after changing the theme.
+
+`pages/404.html` reloads the app once if the browser asks GitHub for an app
+page before shinylive's service worker is ready, and explains Private
+Browsing (which disables service workers) if that doesn't help.

@@ -40,7 +40,7 @@ ui <- page_sidebar(
   tags$head(tags$link(rel = "stylesheet", href = "styles.css")),
 
   sidebar = sidebar(
-    width = 250, bg = "#0d0d1a",
+    width = 250, bg = "#0d0d1a", fg = TEXT_COLOR,  # explicit fg skips a Sass contrast check
     p("FILTER FLIGHTS", class = "sidebar-section-title"),
     checkboxGroupInput("sel_phase", "Phase", PHASE_LEVELS, PHASE_LEVELS),
     checkboxInput("only_moves", "Only flights that moved to a new airfield", FALSE),
@@ -61,38 +61,18 @@ ui <- page_sidebar(
       kpi_card("kpi_speed",    "Top speed"),
       kpi_card("kpi_fields",   "Airfields reached")),
 
-  navset_card_tab(
+  # Keep this static UI shallow. In the browser, R renders the page on a small
+  # call stack, and Safari runs out of stack on deeply nested tags (the app
+  # then fails with a 404). So the tabs aren't wrapped in a card, and the two
+  # tabs with nested controls are rendered by the server (map_tab, anim_tab).
+  navset_tab(
     id = "main_tabs",
 
-    nav_panel(
-      "Flight Map",
-      layout_columns(
-        col_widths = c(8, 4),
-        div(
-          div(class = "controls-row",
-              selectInput("color_by", "Color paths by",
-                          c("Phase" = "phase", METRICS[1:4]), width = "200px"),
-              checkboxGroupInput("show_layers", "Layers",
-                                 c("Airfields" = "airfields", "Landings" = "landings"),
-                                 selected = "airfields", inline = TRUE)),
-          plotlyOutput("flight_map", height = "640px")
-        ),
-        uiOutput("detail_card")
-      )
-    ),
-
+    nav_panel("Flight Map",  uiOutput("map_tab")),
     nav_panel("Performance", plotlyOutput("metrics_plot", height = "680px")),
     nav_panel("Cumulative",  plotlyOutput("cumulative_plot", height = "460px")),
     nav_panel("Timeline",    plotlyOutput("timeline_plot", height = "540px")),
-
-    nav_panel(
-      "Animation",
-      div(class = "controls-row",
-          sliderInput("anim_flight", "Flight", 1, N_FLIGHTS, 1, step = 1, width = "60%",
-                      animate = animationOptions(interval = 700, loop = FALSE)),
-          checkboxInput("anim_cumulative", "Keep earlier flights visible", TRUE)),
-      plotlyOutput("anim_map", height = "640px")
-    ),
+    nav_panel("Animation",   uiOutput("anim_tab")),
 
     nav_panel(
       "Data",
@@ -127,6 +107,31 @@ ui <- page_sidebar(
 # SERVER
 # ─────────────────────────────────────────────────────────────────────────────
 server <- function(input, output, session) {
+
+  # Tab bodies with nested controls (kept out of the static UI; see the note
+  # above navset_tab). Their inputs are NULL until rendered, so the plots that
+  # read them wait with req().
+  output$map_tab <- renderUI({
+    div(class = "map-layout",
+        div(
+          div(class = "controls-row",
+              selectInput("color_by", "Color paths by",
+                          c("Phase" = "phase", METRICS[1:4]), width = "200px"),
+              checkboxGroupInput("show_layers", "Layers",
+                                 c("Airfields" = "airfields", "Landings" = "landings"),
+                                 selected = "airfields", inline = TRUE)),
+          plotlyOutput("flight_map", height = "640px")),
+        uiOutput("detail_card"))
+  })
+
+  output$anim_tab <- renderUI({
+    tagList(
+      div(class = "controls-row",
+          sliderInput("anim_flight", "Flight", 1, N_FLIGHTS, 1, step = 1, width = "60%",
+                      animate = animationOptions(interval = 700, loop = FALSE)),
+          checkboxInput("anim_cumulative", "Keep earlier flights visible", TRUE)),
+      plotlyOutput("anim_map", height = "640px"))
+  })
 
   selected_flight <- reactiveVal(NULL)
 
@@ -198,7 +203,7 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) return(empty_plot())
     pts <- PATHS_FULL |> filter(flight_num %in% df$flight_num)
     sel <- selected_flight()
-    by  <- input$color_by
+    by  <- req(input$color_by)
 
     pts$line_color <- if (by == "phase") pts$phase_color else
       metric_colors(pts[[by]], range(FLIGHTS[[by]]))
@@ -414,7 +419,7 @@ server <- function(input, output, session) {
 
   # ── Animation ──────────────────────────────────────────────────────────────
   output$anim_map <- renderPlotly({
-    cur  <- input$anim_flight
+    cur  <- req(input$anim_flight)
     row  <- FLIGHTS[FLIGHTS$flight_num == cur, ]
     now  <- filter(PATHS_FULL, flight_num == cur)
     past <- filter(PATHS_FULL, flight_num < cur)

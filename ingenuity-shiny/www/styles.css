@@ -65,6 +65,19 @@
 
 /* Cards and tabs */
 .card { background: var(--panel) !important; border: 1px solid var(--border) !important; }
+/* The tab set is a plain navset_tab (not a card, to keep the page shallow); style it like one. */
+.tabbable {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tabbable > .nav-tabs { padding: 8px 8px 0; border-bottom-color: var(--border); }
+.tabbable > .tab-content { padding: 16px; }
+
+/* Flight Map tab: map + detail card side by side, stacked on narrow screens */
+.map-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 991px) { .map-layout { grid-template-columns: minmax(0, 1fr); } }
 .nav-tabs .nav-link { color: var(--muted) !important; }
 .nav-tabs .nav-link.active {
   color: var(--accent) !important;

@@ -11,6 +11,7 @@ site/
 docs_preview/
 
 # Regenerable, large
+ingenuity-shiny/precompiled/
 data/mars_basemap.png
 tableau/mars_terrain_tableau.png
 
