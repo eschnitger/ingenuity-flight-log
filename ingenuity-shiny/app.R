@@ -53,6 +53,13 @@ ui <- page_sidebar(
     uiOutput("sidebar_selected")
   ),
 
+  div(class = "vibe-note",
+      strong("Vibe coded."),
+      "This app was built by prompting an AI coding assistant (Claude Code) rather",
+      "than written by hand. The data is NASA's; check anything important against it.",
+      tags$a("← Back to eschnitger.github.io", href = "https://eschnitger.github.io/",
+             target = "_top")),
+
   div(class = "kpi-strip",
       kpi_card("kpi_flights",  "Flights"),
       kpi_card("kpi_airtime",  "Airtime"),
@@ -98,6 +105,9 @@ ui <- page_sidebar(
             "operations by Earth year), average speed (distance ÷ duration), records",
             "(a flight beating every earlier one) and route labels. Distances are",
             "NASA's per-flight figures; the drawn paths are simplified to 0.5 m."),
+          p(strong("How it was made: "), "vibe coded. The code was written by an AI",
+            "coding assistant (Claude Code) from my prompts, and checked by running",
+            "it rather than by reviewing every line."),
           p(class = "text-muted", "Built with R, Shiny, bslib and plotly."))
     )
   )
@@ -489,4 +499,7 @@ server <- function(input, output, session) {
   )
 }
 
-shinyApp(ui, server)
+# shallow_ui() (R/shallow_ui.R) renders the page piece by piece so R doesn't
+# overflow Safari's small in-browser call stack. It runs per request so the
+# theme is registered for each visit.
+shinyApp(function(req) shallow_ui(ui), server)

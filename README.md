@@ -6,6 +6,10 @@ and an interactive Shiny app published to GitHub Pages with shinylive.
 
 **Live app:** https://eschnitger.github.io/ingenuity-flight-log/
 
+> **Vibe coded.** This project was built by prompting an AI coding assistant
+> (Claude Code) rather than written by hand, and checked by running it rather
+> than by reviewing every line.
+
 ## Data
 
 Everything comes from the two Ingenuity layers behind NASA's
@@ -96,16 +100,17 @@ a GitHub 404 there. Two things keep it working and fast:
 
 - **A shallow page.** R walks the page's tags recursively when serving it, and
   in Safari it ran out of stack on deeply nested tags (the request then died,
-  and Safari fell back to GitHub's 404). The static UI in `app.R` stays about
-  10 tags deep; Safari fails at about 15. Tabs with nested controls are
-  rendered by the server (`map_tab`, `anim_tab`). Avoid wrapping the tabs in
-  cards or extra layout containers.
+  and Safari fell back to GitHub's 404). `R/shallow_ui.R` renders the page
+  with loops instead of recursion, so the stack no longer grows with nesting
+  (tested with 12 extra levels). The static UI is also kept shallow (about 10
+  tags), with the nested tabs rendered by the server (`map_tab`, `anim_tab`).
 - **Precompiled CSS.** `scripts/precompile_shiny_css.R` compiles the theme's
   Sass in regular R into `ingenuity-shiny/precompiled/` (not committed; CI
   regenerates it), and `ingenuity-shiny/R/precompiled_css.R` uses it in the
   browser. This cut startup from about 37 s to about 14 s. Re-run the script
   after changing the theme.
 
-`pages/404.html` reloads the app once if the browser asks GitHub for an app
-page before shinylive's service worker is ready, and explains Private
-Browsing (which disables service workers) if that doesn't help.
+`pages/404.html` handles the case where the browser asks GitHub for an app
+page instead of shinylive's service worker: it reloads once, then unregisters
+the worker (in case a stale one is stuck) and reloads again, then explains
+what to try, with technical details to report.
