@@ -1,4 +1,4 @@
-# R/ingenuity_map.R — ggplot2 flight-path maps (+ optional gganimate GIF)
+# R/ingenuity_map.R — ggplot2 maps of the real flight paths (+ optional GIF)
 # Run from the project root:  Rscript R/ingenuity_map.R
 source("R/theme_ingenuity.R")
 suppressPackageStartupMessages({
@@ -9,167 +9,110 @@ suppressPackageStartupMessages({
 flights   <- load_flights()
 locations <- load_locations()
 paths     <- load_paths() |>
-  left_join(
-    select(flights, flight_num, duration_s, max_alt_m, distance_m, battery_used,
-           mission_phase, anomaly_flag, images_taken),
-    by = "flight_num"
-  )
+  left_join(select(flights, flight_num, duration_s, max_alt_m, distance_m,
+                   max_speed_ms, mission_phase, final_flag),
+            by = "flight_num")
 dir.create("outputs", showWarnings = FALSE)
 
-XLIM <- c(-400, 2800)
-YLIM <- c(-3600, 500)
+pad  <- 250
+XLIM <- range(paths$east_m)  + c(-pad, pad)
+YLIM <- range(paths$north_m) + c(-pad, pad)
 
 theme_mars_map <- function(base_size = 11) {
   theme_ingenuity(base_size) +
-    theme(
-      panel.grid.major = element_line(color = GRD, linewidth = 0.3),
-      panel.grid.minor = element_blank(),
-      axis.text        = element_text(color = "#666666", size = 7),
-      axis.title       = element_text(color = "#888888", size = 8),
-      legend.background = element_rect(fill = "#111111", color = "#333333")
-    )
+    theme(panel.grid.major = element_line(color = GRD, linewidth = 0.3),
+          panel.grid.minor = element_blank(),
+          axis.text  = element_text(color = "#666666", size = 7),
+          axis.title = element_text(color = "#888888", size = 8),
+          legend.background = element_rect(fill = "#111111", color = "#333333"))
 }
 
-# One row per path segment
-segments <- paths |>
-  arrange(flight_num, step) |>
-  group_by(flight_num) |>
-  mutate(x_end = lead(east_m), y_end = lead(north_m)) |>
-  filter(!is.na(x_end)) |>
-  ungroup()
-
-origin_layer <- function(size = 5) {
-  annotate("point", x = 0, y = 0, shape = 8, size = size, color = "#FFD700", stroke = 1.3)
-}
+final_pt <- filter(paths, final_flag, is_landing)
+origin   <- annotate("point", x = 0, y = 0, shape = 8, size = 5, color = "#FFD700",
+                     stroke = 1.3)
 
 # ── PLOT 1: master map ───────────────────────────────────────────────────────
-final_pt <- paths |> filter(flight_num == 72, is_landing)
-
-p_map_main <- ggplot() +
-  geom_segment(
-    data = segments,
-    aes(east_m, north_m, xend = x_end, yend = y_end,
-        color = mission_phase, alpha = flight_num),
-    linewidth = 0.9, lineend = "round"
-  ) +
-  geom_point(
-    data = filter(paths, anomaly_flag, is_landing),
-    aes(east_m, north_m), shape = 4, size = 4, color = "#FF6B6B", stroke = 1.5
-  ) +
-  geom_point(
-    data = filter(locations, is_airfield, location != "Wright Brothers Field"),
-    aes(east_m, north_m), shape = 17, size = 2.5, color = "#FFD700", alpha = 0.8
-  ) +
-  geom_point(
-    data = filter(locations, !is_airfield),
-    aes(east_m, north_m), shape = 18, size = 3, color = "#D4A96A", alpha = 0.8
-  ) +
-  geom_text_repel(
-    data = filter(locations, !is_airfield),
-    aes(east_m, north_m, label = location),
-    color = "#D4A96A", size = 3, fontface = "bold",
-    bg.color = BG, bg.r = 0.15, nudge_x = 250, direction = "y",
-    segment.color = "#D4A96A", segment.alpha = 0.5, seed = 42
-  ) +
-  origin_layer(6) +
-  annotate("label", x = 130, y = 150, label = "Wright Brothers Field\n(origin)",
-           color = "#FFD700", fill = "#1a1a0a", size = 2.8, hjust = 0) +
-  annotate("label", x = final_pt$east_m, y = final_pt$north_m - 170,
-           label = "Final landing\nFlight 72",
-           color = "#FF6B6B", fill = "#1a0a0a", size = 2.8) +
-  # North arrow
-  annotate("segment", x = 2650, xend = 2650, y = 50, yend = 350,
-           color = "white", linewidth = 1,
-           arrow = arrow(length = unit(8, "pt"), type = "closed")) +
-  annotate("text", x = 2650, y = 420, label = "N", color = "white",
-           size = 4, fontface = "bold") +
-  # Scale bar
-  annotate("segment", x = 2200, xend = 2700, y = -3500, yend = -3500,
-           color = "white", linewidth = 1.5) +
-  annotate("text", x = 2450, y = -3420, label = "500 m", color = "white", size = 3) +
-  scale_color_manual(values = PHASE_COLORS, name = "Mission Phase") +
-  scale_alpha_continuous(range = c(0.45, 0.95), guide = "none") +
+p_map_main <- ggplot(paths, aes(east_m, north_m, group = flight_num)) +
+  geom_path(aes(color = mission_phase), linewidth = 0.8, lineend = "round",
+            linejoin = "round") +
+  geom_point(data = locations, aes(east_m, north_m), inherit.aes = FALSE,
+             shape = 17, size = 1.8, color = "#FFD700") +
+  geom_text_repel(data = locations, aes(east_m, north_m, label = short_name),
+                  inherit.aes = FALSE, color = "#FFD700", size = 2.4,
+                  bg.color = BG, bg.r = 0.15, max.overlaps = 50, seed = 42,
+                  segment.color = "#FFD700", segment.alpha = 0.4) +
+  origin +
+  annotate("label", x = -150, y = 250, label = "Wright Brothers Field\n(first flight)",
+           color = "#FFD700", fill = "#1a1a0a", size = 2.8, hjust = 1) +
+  annotate("point", x = final_pt$east_m, y = final_pt$north_m, shape = 4,
+           size = 4, color = "#FF6B6B", stroke = 1.5) +
+  annotate("label", x = final_pt$east_m, y = final_pt$north_m - 280,
+           label = "Final flight (F72)", color = "#FF6B6B", fill = "#1a0a0a", size = 2.8) +
+  annotate("segment", x = mean(XLIM) - 500, xend = mean(XLIM) + 500,
+           y = YLIM[1] + 150, yend = YLIM[1] + 150, color = "white", linewidth = 1.2) +
+  annotate("text", x = mean(XLIM), y = YLIM[1] + 260, label = "1 km",
+           color = "white", size = 3) +
+  scale_color_manual(values = PHASE_COLORS, name = "Phase") +
   coord_equal(xlim = XLIM, ylim = YLIM, expand = FALSE) +
-  labs(
-    title    = "Ingenuity Helicopter — All 72 Flight Paths",
-    subtitle = "Jezero Crater, Mars | 18.44°N 77.45°E | April 2021 – January 2024",
-    caption  = "Schematic paths in local ENU meters from Wright Brothers Field (see README)",
-    x = "East (meters)", y = "North (meters)"
-  ) +
+  labs(title = "Ingenuity Helicopter — All 72 Flight Paths",
+       subtitle = "Jezero Crater, Mars | April 2021 – January 2024",
+       caption = SOURCE_NOTE,
+       x = "East of Wright Brothers Field (m)", y = "North (m)") +
   theme_mars_map() +
-  theme(legend.position = "inside",
-        legend.position.inside = c(0.02, 0.02),
+  theme(legend.position = "inside", legend.position.inside = c(0.01, 0.02),
         legend.justification = c(0, 0))
 
 ggsave("outputs/ingenuity_main_map.png", p_map_main,
-       width = 11, height = 14.5, dpi = 170, bg = BG)
+       width = 16, height = 11, dpi = 160, bg = BG)
 message("✅ outputs/ingenuity_main_map.png")
 
-# ── PLOT 2: same paths, coloured by four different metrics ───────────────────
+# ── PLOT 2: same paths, colored by four different metrics ────────────────────
 build_metric_map <- function(metric_col, metric_label, option) {
-  ggplot(segments) +
-    geom_segment(
-      aes(east_m, north_m, xend = x_end, yend = y_end, color = .data[[metric_col]]),
-      linewidth = 1.2, alpha = 0.85, lineend = "round"
-    ) +
-    origin_layer(4) +
+  ggplot(paths, aes(east_m, north_m, group = flight_num)) +
+    geom_path(aes(color = .data[[metric_col]]), linewidth = 1, lineend = "round") +
+    origin +
     scale_color_viridis_c(option = option, name = NULL) +
     coord_equal(xlim = XLIM, ylim = YLIM, expand = FALSE) +
     labs(title = metric_label, x = NULL, y = NULL) +
     theme_mars_map() +
-    theme(plot.title = element_text(size = 11),
-          legend.position = "bottom",
-          legend.key.width = unit(1.4, "cm"),
-          legend.key.height = unit(0.3, "cm"))
+    theme(plot.title = element_text(size = 11), legend.position = "bottom",
+          legend.key.width = unit(1.6, "cm"), legend.key.height = unit(0.3, "cm"))
 }
 
 p_metric_maps <- (
-  build_metric_map("duration_s",   "Duration (s)",     "viridis") |
-  build_metric_map("max_alt_m",    "Max altitude (m)", "plasma")  |
-  build_metric_map("battery_used", "Battery used (%)", "inferno") |
-  build_metric_map("images_taken", "Images captured",  "cividis")
+  (build_metric_map("duration_s",   "Duration (s)",          "viridis") |
+   build_metric_map("max_alt_m",    "Max altitude (m)",      "plasma")) /
+  (build_metric_map("distance_m",   "Distance (m)",          "inferno") |
+   build_metric_map("max_speed_ms", "Top groundspeed (m/s)", "cividis"))
 ) +
   plot_annotation(
-    title    = "Flight Path Maps — Colored by Mission Metric",
-    subtitle = "Same paths, one metric per panel",
-    theme    = theme(
-      plot.background = element_rect(fill = BG, color = NA),
-      plot.title      = element_text(color = "white", size = 14, face = "bold", hjust = 0.5),
-      plot.subtitle   = element_text(color = "#aaaaaa", size = 9, hjust = 0.5)
-    )
+    title = "Flight Paths Colored by Flight Metric", caption = SOURCE_NOTE,
+    theme = theme(plot.background = element_rect(fill = BG, color = NA),
+                  plot.title = element_text(color = "white", size = 14, face = "bold",
+                                            hjust = 0.5),
+                  plot.caption = element_text(color = "#666666", size = 8))
   )
 
 ggsave("outputs/ingenuity_metric_maps.png", p_metric_maps,
-       width = 20, height = 8.5, dpi = 150, bg = BG)
+       width = 18, height = 13, dpi = 140, bg = BG)
 message("✅ outputs/ingenuity_metric_maps.png")
 
 # ── OPTIONAL: animated reveal, one flight per frame ──────────────────────────
 if (requireNamespace("gganimate", quietly = TRUE) &&
     requireNamespace("gifski", quietly = TRUE)) {
   library(gganimate)
-
-  p_anim <- ggplot() +
-    geom_segment(
-      data = select(segments, -flight_num),      # static grey context
-      aes(east_m, north_m, xend = x_end, yend = y_end),
-      color = "#333344", linewidth = 0.4, alpha = 0.5
-    ) +
-    geom_segment(
-      data = segments,
-      aes(east_m, north_m, xend = x_end, yend = y_end,
-          color = mission_phase, group = flight_num),
-      linewidth = 1.2, alpha = 0.85
-    ) +
-    origin_layer(5) +
+  p_anim <- ggplot(paths, aes(east_m, north_m, group = flight_num)) +
+    geom_path(data = select(paths, -flight_num) |> mutate(g = paste(east_m)),
+              aes(group = NULL), color = "#333344", linewidth = 0.4) +
+    geom_path(aes(color = mission_phase), linewidth = 1.1) +
+    origin +
     scale_color_manual(values = PHASE_COLORS, guide = "none") +
     coord_equal(xlim = XLIM, ylim = YLIM, expand = FALSE) +
-    labs(title = "Ingenuity — Flight {current_frame} of 72",
-         subtitle = "Jezero Crater, Mars", x = NULL, y = NULL) +
+    labs(title = "Ingenuity — flight {current_frame} of 72", x = NULL, y = NULL) +
     theme_mars_map() +
     transition_manual(frames = flight_num, cumulative = TRUE)
-
   anim_save("outputs/ingenuity_map_animation.gif",
-            animate(p_anim, nframes = 72, fps = 6, width = 700, height = 900,
+            animate(p_anim, nframes = 72, fps = 6, width = 1000, height = 700,
                     bg = BG, renderer = gifski_renderer(loop = TRUE)))
   message("✅ outputs/ingenuity_map_animation.gif")
 } else {

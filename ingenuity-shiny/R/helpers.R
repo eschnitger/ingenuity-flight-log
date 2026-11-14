@@ -7,30 +7,26 @@ BORDER_COLOR <- "#2a2a3a"
 GRID_COLOR   <- "#1e1e2e"
 TEXT_COLOR   <- "#e0e0e0"
 ACCENT       <- "#4ECDC4"
+SOURCE_NOTE  <- "NASA/JPL-Caltech Mars 2020 map layers"
 
-PHASE_LEVELS <- c("Tech Demo", "Early Ops", "Séítah", "Delta Approach", "Delta Science")
 PHASE_COLORS <- c(
-  "Tech Demo"      = "#FF6B6B",
-  "Early Ops"      = "#FFA07A",
-  "Séítah"         = "#4ECDC4",
-  "Delta Approach" = "#45B7D1",
-  "Delta Science"  = "#96CEB4"
+  "Tech Demo" = "#FF6B6B",
+  "Ops 2021"  = "#FFA07A",
+  "Ops 2022"  = "#4ECDC4",
+  "Ops 2023"  = "#A78BFA",
+  "Ops 2024"  = "#F472B6"
 )
-TYPE_LABELS <- c(tech_demo = "Tech Demo", ops = "Operations",
-                 scout = "Scout", science = "Science")
+PHASE_LEVELS <- names(PHASE_COLORS)
 
 METRICS <- c(
-  "Duration (s)"         = "duration_s",
-  "Max altitude (m)"     = "max_alt_m",
-  "Distance (m)"         = "distance_m",
-  "Battery used (%)"     = "battery_used",
-  "Images captured"      = "images_taken",
-  "Science measurements" = "science_measurements"
+  "Duration (s)"           = "duration_s",
+  "Max altitude (m)"       = "max_alt_m",
+  "Distance (m)"           = "distance_m",
+  "Top groundspeed (m/s)"  = "max_speed_ms",
+  "Average speed (m/s)"    = "avg_speed_ms",
+  "Landing elevation (m)"  = "landing_elev_m"
 )
 metric_label <- function(col) names(METRICS)[match(col, METRICS)]
-
-MAP_X <- c(-400, 2800)
-MAP_Y <- c(-3600, 500)
 
 # ── Data ─────────────────────────────────────────────────────────────────────
 as_flag <- function(x) tolower(as.character(x)) == "true"
@@ -39,9 +35,8 @@ load_flights <- function(path = "data/ingenuity_flights.csv") {
   df <- read.csv(path, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
   df$earth_date    <- as.Date(df$earth_date)
   df$mission_phase <- factor(df$mission_phase, levels = PHASE_LEVELS)
-  df$flight_type   <- factor(unname(TYPE_LABELS[df$flight_type]), levels = unname(TYPE_LABELS))
-  df$anomaly_flag  <- as_flag(df$anomaly_flag)
-  df$record_flag   <- as_flag(df$record_flag)
+  df$records[is.na(df$records)] <- ""
+  for (col in c("record_flag", "final_flag", "relocated")) df[[col]] <- as_flag(df[[col]])
   df$phase_color   <- unname(PHASE_COLORS[as.character(df$mission_phase)])
   df[order(df$flight_num), ]
 }
@@ -54,22 +49,18 @@ load_paths <- function(path = "data/ingenuity_paths.csv") {
 }
 
 load_locations <- function(path = "data/ingenuity_locations.csv") {
-  df <- read.csv(path, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
-  df$is_airfield <- as_flag(df$is_airfield)
-  df
+  read.csv(path, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 }
 
 flight_hover <- function(f) {
   paste0(
     "<b>Flight ", f$flight_num, "</b><br>",
     format(f$earth_date, "%b %d, %Y"), " | Sol ", f$sol, "<br>",
-    "Phase: ", f$mission_phase, "<br>",
-    "Duration: ", f$duration_s, " s<br>",
-    "Altitude: ", f$max_alt_m, " m<br>",
-    "Distance: ", f$distance_m, " m<br>",
-    "Battery used: ", f$battery_used, "%<br>",
-    "Images: ", f$images_taken,
-    ifelse(f$anomaly_flag, "<br><b>⚠ ANOMALY FLIGHT</b>", "")
+    f$route, "<br>",
+    "Duration: ", f$duration_s, " s · Altitude: ", f$max_alt_m, " m<br>",
+    "Distance: ", f$distance_m, " m · Top speed: ", f$max_speed_ms, " m/s",
+    ifelse(f$records != "", paste0("<br><b>New ", f$records, " record</b>"), ""),
+    ifelse(f$final_flag, "<br><b>Final flight</b>", "")
   )
 }
 
@@ -92,12 +83,11 @@ axis <- function(title = "", ...) {
   list(title = title, gridcolor = GRID_COLOR, zerolinecolor = "#33334a", ...)
 }
 
-map_axes <- function(p) {
+map_axes <- function(p, xr, yr) {
   plotly::layout(
     p,
-    xaxis = axis("East (m from Wright Brothers Field)", range = MAP_X,
-                 constrain = "domain"),
-    yaxis = axis("North (m)", range = MAP_Y, scaleanchor = "x", scaleratio = 1,
+    xaxis = axis("East of Wright Brothers Field (m)", range = xr, constrain = "domain"),
+    yaxis = axis("North (m)", range = yr, scaleanchor = "x", scaleratio = 1,
                  constrain = "domain")
   )
 }

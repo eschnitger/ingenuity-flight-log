@@ -1,0 +1,73 @@
+flight_num,sol,earth_date,duration_s,max_alt_m,distance_m,max_speed_ms,avg_speed_ms,mission_phase,from_airfield,to_airfield,route,records,record_flag,final_flag,landing_elev_m,notes
+1,58,2021-04-19,39.1,3.0,2.3,0.0,0.06,Tech Demo,Wright Brothers Field,Wright Brothers Field,Local flight at Wright Brothers Field,,False,False,-2570.0,Local flight at Wright Brothers Field
+2,61,2021-04-22,51.9,5.0,6.3,0.5,0.12,Tech Demo,Wright Brothers Field,Wright Brothers Field,Local flight at Wright Brothers Field,"duration, altitude, distance, speed",True,False,-2570.0,"Local flight at Wright Brothers Field · new duration, altitude, distance, speed record"
+3,64,2021-04-25,80.3,5.0,102.4,2.0,1.28,Tech Demo,Wright Brothers Field,Wright Brothers Field,Local flight at Wright Brothers Field,"duration, distance, speed",True,False,-2570.01,"Local flight at Wright Brothers Field · new duration, distance, speed record"
+4,69,2021-04-30,116.9,5.0,271.1,3.5,2.32,Tech Demo,Wright Brothers Field,Wright Brothers Field,Local flight at Wright Brothers Field,"duration, distance, speed",True,False,-2569.87,"Local flight at Wright Brothers Field · new duration, distance, speed record"
+5,76,2021-05-07,108.2,10.0,134.7,2.0,1.24,Tech Demo,Wright Brothers Field,Airfield B,Wright Brothers Field → Airfield B,altitude,True,False,-2569.13,Wright Brothers Field → Airfield B · new altitude record
+6,91,2021-05-22,139.9,10.0,517.1,4.0,3.7,Ops 2021,Airfield B,Airfield C,Airfield B → Airfield C,"duration, distance, speed",True,False,-2568.99,"Airfield B → Airfield C · new duration, distance, speed record"
+7,107,2021-06-08,62.8,10.0,112.7,4.0,1.79,Ops 2021,Airfield C,Airfield D,Airfield C → Airfield D,,False,False,-2568.93,Airfield C → Airfield D
+8,120,2021-06-21,77.4,10.0,168.2,4.0,2.17,Ops 2021,Airfield D,Airfield E,Airfield D → Airfield E,,False,False,-2569.4,Airfield D → Airfield E
+9,133,2021-07-05,166.4,10.0,656.5,5.0,3.95,Ops 2021,Airfield E,Airfield F,Airfield E → Airfield F,"duration, distance, speed",True,False,-2579.91,"Airfield E → Airfield F · new duration, distance, speed record"
+10,152,2021-07-24,165.4,12.0,245.6,5.0,1.48,Ops 2021,Airfield F,Airfield G,Airfield F → Airfield G,altitude,True,False,-2578.2,Airfield F → Airfield G · new altitude record
+11,163,2021-08-04,130.9,12.0,432.1,5.0,3.3,Ops 2021,Airfield G,Airfield H,Airfield G → Airfield H,,False,False,-2569.83,Airfield G → Airfield H
+12,174,2021-08-16,169.5,10.0,469.3,4.3,2.77,Ops 2021,Airfield H,Airfield H,Local flight at Airfield H,duration,True,False,-2570.31,Local flight at Airfield H · new duration record
+13,193,2021-09-04,160.5,8.0,226.9,3.3,1.41,Ops 2021,Airfield H,Airfield H,Local flight at Airfield H,,False,False,-2569.81,Local flight at Airfield H
+14,241,2021-10-24,23.0,5.0,4.2,0.5,0.18,Ops 2021,Airfield H,Airfield H,Local flight at Airfield H,,False,False,-2569.85,Local flight at Airfield H
+15,254,2021-11-06,128.8,12.0,450.2,5.0,3.5,Ops 2021,Airfield H,Airfield F,Airfield H → Airfield F,,False,False,-2578.9,Airfield H → Airfield F
+16,268,2021-11-20,107.9,10.0,125.9,1.5,1.17,Ops 2021,Airfield F,Airfield J,Airfield F → Airfield J,,False,False,-2582.23,Airfield F → Airfield J
+17,282,2021-12-05,116.8,10.0,207.6,2.5,1.78,Ops 2021,Airfield J,Airfield K,Airfield J → Airfield K,,False,False,-2579.56,Airfield J → Airfield K
+18,292,2021-12-15,124.3,10.0,234.8,2.5,1.89,Ops 2021,Airfield K,Airfield L,Airfield K → Airfield L,,False,False,-2572.99,Airfield K → Airfield L
+19,345,2022-02-07,99.8,10.0,66.8,1.0,0.67,Ops 2022,Airfield L,Airfield E,Airfield L → Airfield E,,False,False,-2569.36,Airfield L → Airfield E
+20,362,2022-02-25,130.3,10.0,401.9,4.4,3.08,Ops 2022,Airfield E,Airfield M,Airfield E → Airfield M,,False,False,-2570.43,Airfield E → Airfield M
+21,375,2022-03-10,129.2,10.0,381.2,3.85,2.95,Ops 2022,Airfield M,Airfield N,Airfield M → Airfield N,,False,False,-2558.7,Airfield M → Airfield N
+22,384,2022-03-19,101.4,10.0,71.4,1.0,0.7,Ops 2022,Airfield N,Airfield N,Local flight at Airfield N,,False,False,-2561.58,Local flight at Airfield N
+23,388,2022-03-24,129.1,10.0,363.7,4.0,2.82,Ops 2022,Airfield N,Airfield P,Airfield N → Airfield P,,False,False,-2565.68,Airfield N → Airfield P
+24,398,2022-04-03,69.5,10.0,52.7,1.45,0.76,Ops 2022,Airfield P,Airfield P,Local flight at Airfield P,,False,False,-2563.18,Local flight at Airfield P
+25,403,2022-04-08,161.3,10.0,715.3,5.5,4.43,Ops 2022,Airfield P,Airfield Q,Airfield P → Airfield Q,"distance, speed",True,False,-2557.74,"Airfield P → Airfield Q · new distance, speed record"
+26,414,2022-04-20,159.0,8.0,369.8,3.8,2.33,Ops 2022,Airfield Q,Airfield R,Airfield Q → Airfield R,,False,False,-2559.58,Airfield Q → Airfield R
+27,418,2022-04-24,152.9,10.0,318.6,3.0,2.08,Ops 2022,Airfield R,Airfield S,Airfield R → Airfield S,,False,False,-2556.57,Airfield R → Airfield S
+28,423,2022-04-29,152.4,10.0,431.8,3.6,2.83,Ops 2022,Airfield S,Airfield T,Airfield S → Airfield T,,False,False,-2549.64,Airfield S → Airfield T
+29,465,2022-06-11,66.6,10.0,185.0,5.5,2.78,Ops 2022,Airfield T,Airfield U,Airfield T → Airfield U,,False,False,-2550.23,Airfield T → Airfield U
+30,533,2022-08-20,33.3,5.0,3.0,0.5,0.09,Ops 2022,Airfield U,Airfield U,Local flight at Airfield U,,False,False,-2550.31,Local flight at Airfield U
+31,550,2022-09-06,55.6,10.0,99.6,4.75,1.79,Ops 2022,Airfield U,Airfield V,Airfield U → Airfield V,,False,False,-2549.36,Airfield U → Airfield V
+32,561,2022-09-17,55.3,10.0,97.7,4.75,1.77,Ops 2022,Airfield V,Airfield W,Airfield V → Airfield W,,False,False,-2547.28,Airfield V → Airfield W
+33,567,2022-09-24,55.2,10.0,115.5,4.75,2.09,Ops 2022,Airfield W,Airfield X,Airfield W → Airfield X,,False,False,-2545.47,Airfield W → Airfield X
+34,625,2022-11-22,18.3,5.0,1.8,0.0,0.1,Ops 2022,Airfield X,Airfield X,Local flight at Airfield X,,False,False,-2545.47,Local flight at Airfield X
+35,635,2022-12-03,52.0,14.0,18.7,3.0,0.36,Ops 2022,Airfield X,Airfield X,Local flight at Airfield X,altitude,True,False,-2545.12,Local flight at Airfield X · new altitude record
+36,642,2022-12-10,60.5,10.0,111.9,5.5,1.85,Ops 2022,Airfield X,Airfield X,Local flight at Airfield X,,False,False,-2545.12,Local flight at Airfield X
+37,649,2022-12-17,55.2,14.0,65.4,5.5,1.18,Ops 2022,Airfield X,Airfield Y,Airfield X → Airfield Y,,False,False,-2543.69,Airfield X → Airfield Y
+38,667,2023-01-05,74.3,10.0,118.2,3.5,1.59,Ops 2023,Airfield Y,Airfield Z,Airfield Y → Airfield Z,,False,False,-2539.76,Airfield Y → Airfield Z
+39,673,2023-01-11,78.72,10.0,145.8,4.0,1.85,Ops 2023,Airfield Z,Airfield Z,Local flight at Airfield Z,,False,False,-2539.91,Local flight at Airfield Z
+40,681,2023-01-19,91.62,10.0,184.4,5.5,2.01,Ops 2023,Airfield Z,Airfield Beta,Airfield Z → Airfield Beta,,False,False,-2523.28,Airfield Z → Airfield Beta
+41,689,2023-01-27,109.1,10.0,187.9,5.5,1.72,Ops 2023,Airfield Beta,Airfield Beta,Local flight at Airfield Beta,,False,False,-2520.55,Local flight at Airfield Beta
+42,697,2023-02-04,137.2,10.0,257.3,5.5,1.88,Ops 2023,Airfield Beta,Airfield Gamma,Airfield Beta → Airfield Gamma,,False,False,-2497.92,Airfield Beta → Airfield Gamma
+43,708,2023-02-16,146.0,12.0,397.8,4.0,2.72,Ops 2023,Airfield Gamma,Airfield Epsilon,Airfield Gamma → Airfield Epsilon,,False,False,-2489.03,Airfield Gamma → Airfield Epsilon
+44,711,2023-02-19,141.26,12.0,348.7,5.5,2.47,Ops 2023,Airfield Epsilon,Airfield Zeta,Airfield Epsilon → Airfield Zeta,,False,False,-2478.28,Airfield Epsilon → Airfield Zeta
+45,714,2023-02-22,144.54,12.0,510.3,6.0,3.53,Ops 2023,Airfield Zeta,Airfield Eta,Airfield Zeta → Airfield Eta,speed,True,False,-2472.6,Airfield Zeta → Airfield Eta · new speed record
+46,717,2023-02-25,135.86,12.0,453.3,5.5,3.34,Ops 2023,Airfield Eta,Airfield Theta,Airfield Eta → Airfield Theta,,False,False,-2463.05,Airfield Eta → Airfield Theta
+47,729,2023-03-09,146.082,12.0,448.6,5.5,3.07,Ops 2023,Airfield Theta,Airfield Iota,Airfield Theta → Airfield Iota,,False,False,-2451.43,Airfield Theta → Airfield Iota
+48,741,2023-03-21,149.9,12.0,413.1,5.5,2.76,Ops 2023,Airfield Iota,Airfield Kappa,Airfield Iota → Airfield Kappa,,False,False,-2430.15,Airfield Iota → Airfield Kappa
+49,752,2023-04-02,142.71,16.0,288.8,6.5,2.02,Ops 2023,Airfield Kappa,Airfield Lambda,Airfield Kappa → Airfield Lambda,"altitude, speed",True,False,-2422.23,"Airfield Kappa → Airfield Lambda · new altitude, speed record"
+50,763,2023-04-13,145.65,18.0,337.4,4.6,2.32,Ops 2023,Airfield Lambda,Airfield Mu,Airfield Lambda → Airfield Mu,altitude,True,False,-2419.93,Airfield Lambda → Airfield Mu · new altitude record
+51,772,2023-04-22,136.89,12.0,196.9,4.0,1.44,Ops 2023,Airfield Mu,Airfield Nu,Airfield Mu → Airfield Nu,,False,False,-2417.38,Airfield Mu → Airfield Nu
+52,776,2023-04-26,145.0,12.0,375.4,5.5,2.59,Ops 2023,Airfield Nu,Airfield Xi,Airfield Nu → Airfield Xi,,False,False,-2420.26,Airfield Nu → Airfield Xi
+53,864,2023-07-22,74.85,5.0,143.9,2.5,1.92,Ops 2023,Airfield Xi,Airfield Omicron,Airfield Xi → Airfield Omicron,,False,False,-2417.75,Airfield Xi → Airfield Omicron
+54,872,2023-08-03,24.37,5.0,1.5,0.0,0.06,Ops 2023,Airfield Omicron,Airfield Omicron,Local flight at Airfield Omicron,,False,False,-2417.75,Local flight at Airfield Omicron
+55,881,2023-08-12,142.97,10.0,270.5,4.7,1.89,Ops 2023,Airfield Omicron,Airfield Pi,Airfield Omicron → Airfield Pi,,False,False,-2417.56,Airfield Omicron → Airfield Pi
+56,894,2023-08-25,140.94,12.0,436.4,5.3,3.1,Ops 2023,Airfield Pi,Airfield Rho,Airfield Pi → Airfield Rho,,False,False,-2420.87,Airfield Pi → Airfield Rho
+57,902,2023-09-03,128.59,10.0,226.2,3.0,1.76,Ops 2023,Airfield Rho,Airfield Rho,Local flight at Airfield Rho,,False,False,-2410.48,Local flight at Airfield Rho
+58,910,2023-09-11,106.77,10.0,179.9,5.5,1.68,Ops 2023,Airfield Rho,Airfield Sigma,Airfield Rho → Airfield Sigma,,False,False,-2408.11,Airfield Rho → Airfield Sigma
+59,915,2023-09-16,142.59,20.0,9.4,0.0,0.07,Ops 2023,Airfield Sigma,Airfield Sigma,Local flight at Airfield Sigma,altitude,True,False,-2408.17,Local flight at Airfield Sigma · new altitude record
+60,924,2023-09-26,132.84,16.0,361.9,8.0,2.72,Ops 2023,Airfield Sigma,Airfield Tau,Airfield Sigma → Airfield Tau,speed,True,False,-2410.69,Airfield Sigma → Airfield Tau · new speed record
+61,933,2023-10-05,129.46,24.0,7.1,0.0,0.05,Ops 2023,Airfield Tau,Airfield Tau,Local flight at Airfield Tau,altitude,True,False,-2410.69,Local flight at Airfield Tau · new altitude record
+62,940,2023-10-12,121.07,18.0,293.0,10.0,2.42,Ops 2023,Airfield Tau,Airfield Tau,Local flight at Airfield Tau,speed,True,False,-2409.96,Local flight at Airfield Tau · new speed record
+63,947,2023-10-19,142.62,12.0,599.7,5.5,4.2,Ops 2023,Airfield Tau,Airfield Upsilon,Airfield Tau → Airfield Upsilon,,False,False,-2399.17,Airfield Tau → Airfield Upsilon
+64,955,2023-10-27,139.08,12.0,440.1,5.8,3.16,Ops 2023,Airfield Upsilon,Airfield Phi,Airfield Upsilon → Airfield Phi,,False,False,-2406.49,Airfield Upsilon → Airfield Phi
+65,961,2023-11-02,48.0,10.0,14.4,1.0,0.3,Ops 2023,Airfield Phi,Airfield Phi,Local flight at Airfield Phi,,False,False,-2406.22,Local flight at Airfield Phi
+66,962,2023-11-03,23.03,3.0,2.7,1.0,0.12,Ops 2023,Airfield Phi,Airfield Phi,Local flight at Airfield Phi,,False,False,-2406.24,Local flight at Airfield Phi
+67,990,2023-12-02,135.93,12.0,414.8,5.3,3.05,Ops 2023,Airfield Phi,Airfield Chi,Airfield Phi → Airfield Chi,,False,False,-2411.07,Airfield Phi → Airfield Chi
+68,1003,2023-12-16,135.13,16.0,724.8,10.0,5.36,Ops 2023,Airfield Chi,Airfield Chi,Local flight at Airfield Chi,distance,True,False,-2410.96,Local flight at Airfield Chi · new distance record
+69,1007,2023-12-20,135.41,16.0,722.2,10.0,5.33,Ops 2023,Airfield Chi,Airfield Chi,Local flight at Airfield Chi,,False,False,-2410.97,Local flight at Airfield Chi
+70,1009,2023-12-22,132.9,12.0,286.3,3.0,2.15,Ops 2023,Airfield Chi,Airfield Chi,Local flight at Airfield Chi,,False,False,-2405.29,Local flight at Airfield Chi
+71,1024,2024-01-06,34.96,12.0,93.9,7.0,2.69,Ops 2024,Airfield Chi,Airfield Chi,Local flight at Airfield Chi,,False,False,-2398.69,Local flight at Airfield Chi
+72,1036,2024-01-18,32.2,12.0,6.9,0.0,0.21,Ops 2024,Airfield Chi,Airfield Chi,Local flight at Airfield Chi,,False,True,-2398.77,Local flight at Airfield Chi · final flight

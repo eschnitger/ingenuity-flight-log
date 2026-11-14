@@ -16,9 +16,10 @@ LOCATIONS <- load_locations()
 
 N_FLIGHTS <- nrow(FLIGHTS)
 SOL_RANGE <- range(FLIGHTS$sol)
-TYPES     <- levels(FLIGHTS$flight_type)
+MAP_X     <- range(PATHS$east_m)  + c(-250, 250)
+MAP_Y     <- range(PATHS$north_m) + c(-250, 250)
 
-# Waypoints with flight metrics attached (one row per waypoint)
+# Path vertices with flight metrics attached
 PATHS_FULL <- PATHS |>
   left_join(FLIGHTS, by = "flight_num") |>
   mutate(hover = flight_hover(pick(everything())))
@@ -41,14 +42,12 @@ ui <- page_sidebar(
   sidebar = sidebar(
     width = 250, bg = "#0d0d1a",
     p("FILTER FLIGHTS", class = "sidebar-section-title"),
-    checkboxGroupInput("sel_phase", "Mission phase", PHASE_LEVELS, PHASE_LEVELS),
-    checkboxGroupInput("sel_type", "Flight type", TYPES, TYPES),
+    checkboxGroupInput("sel_phase", "Phase", PHASE_LEVELS, PHASE_LEVELS),
+    checkboxInput("only_moves", "Only flights that moved to a new airfield", FALSE),
     sliderInput("sel_flight_range", "Flight number", 1, N_FLIGHTS,
                 c(1, N_FLIGHTS), step = 1),
-    sliderInput("sel_sol_range", "Sol", SOL_RANGE[1], SOL_RANGE[2],
-                SOL_RANGE, step = 1),
-    actionButton("reset_filters", "Reset filters",
-                 class = "btn-sm btn-outline-light"),
+    sliderInput("sel_sol_range", "Sol", SOL_RANGE[1], SOL_RANGE[2], SOL_RANGE, step = 1),
+    actionButton("reset_filters", "Reset filters", class = "btn-sm btn-outline-light"),
     hr(),
     p("SELECTED FLIGHT", class = "sidebar-section-title"),
     uiOutput("sidebar_selected")
@@ -59,8 +58,8 @@ ui <- page_sidebar(
       kpi_card("kpi_airtime",  "Airtime"),
       kpi_card("kpi_distance", "Distance"),
       kpi_card("kpi_alt",      "Max altitude"),
-      kpi_card("kpi_images",   "Images"),
-      kpi_card("kpi_science",  "Science measurements")),
+      kpi_card("kpi_speed",    "Top speed"),
+      kpi_card("kpi_fields",   "Airfields reached")),
 
   navset_card_tab(
     id = "main_tabs",
@@ -72,20 +71,18 @@ ui <- page_sidebar(
         div(
           div(class = "controls-row",
               selectInput("color_by", "Color paths by",
-                          c("Mission phase" = "phase", METRICS[1:5]), width = "200px"),
-              checkboxGroupInput(
-                "show_layers", "Layers",
-                c("Airfields" = "airfields", "Features" = "features",
-                  "Takeoffs" = "takeoffs", "Landings" = "landings"),
-                selected = c("airfields", "features"), inline = TRUE)),
-          plotlyOutput("flight_map", height = "760px")
+                          c("Phase" = "phase", METRICS[1:4]), width = "200px"),
+              checkboxGroupInput("show_layers", "Layers",
+                                 c("Airfields" = "airfields", "Landings" = "landings"),
+                                 selected = "airfields", inline = TRUE)),
+          plotlyOutput("flight_map", height = "640px")
         ),
         uiOutput("detail_card")
       )
     ),
 
     nav_panel("Performance", plotlyOutput("metrics_plot", height = "680px")),
-    nav_panel("Cumulative",  plotlyOutput("cumulative_plot", height = "620px")),
+    nav_panel("Cumulative",  plotlyOutput("cumulative_plot", height = "460px")),
     nav_panel("Timeline",    plotlyOutput("timeline_plot", height = "540px")),
 
     nav_panel(
@@ -94,7 +91,7 @@ ui <- page_sidebar(
           sliderInput("anim_flight", "Flight", 1, N_FLIGHTS, 1, step = 1, width = "60%",
                       animate = animationOptions(interval = 700, loop = FALSE)),
           checkboxInput("anim_cumulative", "Keep earlier flights visible", TRUE)),
-      plotlyOutput("anim_map", height = "760px")
+      plotlyOutput("anim_map", height = "640px")
     ),
 
     nav_panel(
@@ -108,14 +105,19 @@ ui <- page_sidebar(
       "About",
       div(class = "about-content",
           h4("Ingenuity Mars Helicopter"),
-          p("First powered, controlled flight on another planet: 72 flights in",
-            "Jezero Crater between April 19, 2021 and January 18, 2024."),
-          p(strong("About this data: "),
-            "the per-flight metrics and the flight paths in this app are an",
-            "illustrative dataset built for a visualization exercise. They are",
-            "not the official JPL flight log and should not be cited as such."),
-          p(tags$a("NASA: Ingenuity Mars Helicopter", target = "_blank",
-                   href = "https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/")),
+          p("The first powered, controlled flights on another planet: 72 flights in",
+            "Jezero Crater between April 19, 2021 and January 18, 2024, ending when",
+            "rotor damage was found after flight 72."),
+          p(strong("Data: "), "flight dates, durations, altitudes, distances, top",
+            "groundspeeds, airfields and flown paths come from the Ingenuity layers",
+            "behind NASA's", tags$a("Where is Perseverance? map", target = "_blank",
+            href = "https://science.nasa.gov/mission/mars-2020-perseverance/location-map/"),
+            "(", tags$code("m20_heli_waypoints.json"), "and",
+            tags$code("m20_heli_flight_path.json"), "), courtesy NASA/JPL-Caltech."),
+          p(strong("Derived here: "), "phases (tech demo = flights 1–5, then",
+            "operations by Earth year), average speed (distance ÷ duration), records",
+            "(a flight beating every earlier one) and route labels. Distances are",
+            "NASA's per-flight figures; the drawn paths are simplified to 0.5 m."),
           p(class = "text-muted", "Built with R, Shiny, bslib and plotly."))
     )
   )
@@ -128,7 +130,6 @@ server <- function(input, output, session) {
 
   selected_flight <- reactiveVal(NULL)
 
-  # Sliders fire on every tick; wait until they settle
   flight_range <- debounce(reactive(input$sel_flight_range), 250)
   sol_range    <- debounce(reactive(input$sel_sol_range), 250)
 
@@ -136,7 +137,7 @@ server <- function(input, output, session) {
     FLIGHTS |>
       filter(
         mission_phase %in% input$sel_phase,
-        flight_type   %in% input$sel_type,
+        !input$only_moves | relocated,
         between(flight_num, flight_range()[1], flight_range()[2]),
         between(sol, sol_range()[1], sol_range()[2])
       )
@@ -144,13 +145,12 @@ server <- function(input, output, session) {
 
   observeEvent(input$reset_filters, {
     updateCheckboxGroupInput(session, "sel_phase", selected = PHASE_LEVELS)
-    updateCheckboxGroupInput(session, "sel_type", selected = TYPES)
+    updateCheckboxInput(session, "only_moves", value = FALSE)
     updateSliderInput(session, "sel_flight_range", value = c(1, N_FLIGHTS))
     updateSliderInput(session, "sel_sol_range", value = SOL_RANGE)
     selected_flight(NULL)
   })
 
-  # Drop the selection if filters hide that flight
   observe({
     fn <- selected_flight()
     if (!is.null(fn) && !fn %in% filtered()$flight_num) selected_flight(NULL)
@@ -161,28 +161,26 @@ server <- function(input, output, session) {
     if (is.null(fn)) NULL else FLIGHTS[FLIGHTS$flight_num == fn, ]
   })
 
-  # Clicking a mark in any chart selects that flight
   for (src in c("map", "metrics", "timeline", "cumulative")) local({
     s <- src
-    observeEvent(event_data("plotly_click", source = s), {
+    observeEvent(event_data("plotly_click", source = s, priority = "event"), {
       fn <- event_data("plotly_click", source = s)$customdata
       if (!is.null(fn) && !is.na(fn[[1]])) selected_flight(as.integer(fn[[1]]))
-    })
+    }, ignoreInit = TRUE)
   })
 
   # ── KPIs ───────────────────────────────────────────────────────────────────
-  kpi <- function(expr_fn) renderText({
+  kpi <- function(f) renderText({
     df <- filtered()
-    if (nrow(df) == 0) "–" else expr_fn(df)
+    if (nrow(df) == 0) "–" else f(df)
   })
   output$kpi_flights  <- renderText(nrow(filtered()))
   output$kpi_airtime  <- kpi(\(d) glue("{round(sum(d$duration_s) / 60, 1)} min"))
   output$kpi_distance <- kpi(\(d) glue("{round(sum(d$distance_m) / 1000, 2)} km"))
   output$kpi_alt      <- kpi(\(d) glue("{max(d$max_alt_m)} m"))
-  output$kpi_images   <- kpi(\(d) format(sum(d$images_taken), big.mark = ","))
-  output$kpi_science  <- kpi(\(d) format(sum(d$science_measurements), big.mark = ","))
+  output$kpi_speed    <- kpi(\(d) glue("{max(d$max_speed_ms)} m/s"))
+  output$kpi_fields   <- kpi(\(d) length(unique(d$to_airfield)))
 
-  # ── Sidebar selection summary ──────────────────────────────────────────────
   output$sidebar_selected <- renderUI({
     row <- selected_row()
     if (is.null(row)) return(div(class = "sidebar-no-selection", "No flight selected"))
@@ -198,22 +196,19 @@ server <- function(input, output, session) {
   output$flight_map <- renderPlotly({
     df <- filtered()
     if (nrow(df) == 0) return(empty_plot())
-    pts    <- PATHS_FULL |> filter(flight_num %in% df$flight_num)
-    sel    <- selected_flight()
-    layers <- input$show_layers
-    by     <- input$color_by
+    pts <- PATHS_FULL |> filter(flight_num %in% df$flight_num)
+    sel <- selected_flight()
+    by  <- input$color_by
 
     pts$line_color <- if (by == "phase") pts$phase_color else
       metric_colors(pts[[by]], range(FLIGHTS[[by]]))
 
     p <- plot_ly(source = "map") |>
-      add_paths(
-        data = pts, x = ~east_m, y = ~north_m, split = ~flight_num,
-        color = ~I(line_color), line = list(width = 2),
-        opacity = if (is.null(sel)) 0.8 else 0.35,
-        text = ~hover, hoverinfo = "text", customdata = ~flight_num,
-        showlegend = FALSE
-      )
+      add_paths(data = pts, x = ~east_m, y = ~north_m, split = ~flight_num,
+                color = ~I(line_color), line = list(width = 2.2),
+                opacity = if (is.null(sel)) 0.9 else 0.35,
+                text = ~hover, hoverinfo = "text", customdata = ~flight_num,
+                showlegend = FALSE)
 
     if (by == "phase") {
       for (ph in intersect(PHASE_LEVELS, as.character(df$mission_phase))) {
@@ -221,44 +216,26 @@ server <- function(input, output, session) {
                             line = list(color = PHASE_COLORS[[ph]], width = 3))
       }
     } else {
-      # Invisible markers carry the colorbar for the metric
       p <- p |> add_markers(
-        data = df |> left_join(filter(PATHS, is_takeoff), by = "flight_num"),
-        x = ~east_m, y = ~north_m, hoverinfo = "skip", showlegend = FALSE,
+        data = filter(pts, is_takeoff), x = ~east_m, y = ~north_m,
+        hoverinfo = "skip", showlegend = FALSE,
         marker = list(size = 0.1, color = as.formula(paste0("~", by)),
                       colorscale = "Viridis", showscale = TRUE,
                       cmin = min(FLIGHTS[[by]]), cmax = max(FLIGHTS[[by]]),
-                      colorbar = list(title = metric_label(by), thickness = 12))
-      )
+                      colorbar = list(title = metric_label(by), thickness = 12)))
     }
 
-    if ("features" %in% layers) {
+    if ("airfields" %in% input$show_layers) {
       p <- p |> add_trace(
-        data = filter(LOCATIONS, !is_airfield), x = ~east_m, y = ~north_m,
-        type = "scatter", mode = "markers+text", text = ~location,
-        textposition = "top right", textfont = list(size = 10, color = "#D4A96A"),
-        marker = list(symbol = "diamond", size = 8, color = "#D4A96A"),
-        hoverinfo = "text", showlegend = FALSE)
-    }
-    if ("airfields" %in% layers) {
-      af <- filter(LOCATIONS, is_airfield)
-      p <- p |> add_trace(
-        data = af, x = ~east_m, y = ~north_m,
-        type = "scatter", mode = "markers+text",
-        text = sub("Airfield ", "", sub("Wright Brothers Field", "WBF", af$location)),
-        hovertext = ~location, hoverinfo = "text",
-        textposition = "middle left", textfont = list(size = 9, color = "#FFD700"),
-        marker = list(symbol = "triangle-up", size = 9, color = "#FFD700"),
+        data = LOCATIONS, x = ~east_m, y = ~north_m, type = "scatter",
+        mode = "markers+text", text = ~short_name, textposition = "top center",
+        textfont = list(size = 9, color = "#FFD700"),
+        hovertext = ~paste0(location, "<br>first landing: flight ", first_flight),
+        hoverinfo = "text",
+        marker = list(symbol = "triangle-up", size = 8, color = "#FFD700"),
         showlegend = FALSE)
     }
-    if ("takeoffs" %in% layers) {
-      p <- p |> add_markers(
-        data = filter(pts, is_takeoff), x = ~east_m, y = ~north_m, name = "Takeoff",
-        marker = list(symbol = "circle", size = 6, color = "lime"),
-        text = ~paste0("Takeoff F", flight_num), hoverinfo = "text",
-        customdata = ~flight_num)
-    }
-    if ("landings" %in% layers) {
+    if ("landings" %in% input$show_layers) {
       p <- p |> add_markers(
         data = filter(pts, is_landing), x = ~east_m, y = ~north_m, name = "Landing",
         marker = list(symbol = "x", size = 6, color = "#FF6B6B"),
@@ -270,10 +247,10 @@ server <- function(input, output, session) {
       sp <- filter(pts, flight_num == sel)
       p <- p |>
         add_paths(data = sp, x = ~east_m, y = ~north_m,
-                  line = list(color = "white", width = 5), hoverinfo = "skip",
+                  line = list(color = "white", width = 6), hoverinfo = "skip",
                   showlegend = FALSE) |>
         add_paths(data = sp, x = ~east_m, y = ~north_m,
-                  line = list(color = sp$line_color[1], width = 3),
+                  line = list(color = sp$line_color[1], width = 3.5),
                   text = ~hover, hoverinfo = "text", customdata = ~flight_num,
                   showlegend = FALSE) |>
         add_markers(data = sp[nrow(sp), ], x = ~east_m, y = ~north_m,
@@ -283,13 +260,10 @@ server <- function(input, output, session) {
     }
 
     p |>
-      dark_layout(
-        uirevision = "map",                      # keep zoom across re-renders
-        margin = list(t = 20, r = 10, b = 40, l = 50),
-        legend = list(bgcolor = "rgba(0,0,0,0.5)", x = 0.01, y = 0.01,
-                      xanchor = "left", yanchor = "bottom")
-      ) |>
-      map_axes() |>
+      dark_layout(uirevision = "map", margin = list(t = 20, r = 10, b = 40, l = 50),
+                  legend = list(bgcolor = "rgba(0,0,0,0.5)", x = 0.01, y = 0.01,
+                                xanchor = "left", yanchor = "bottom")) |>
+      map_axes(MAP_X, MAP_Y) |>
       event_register("plotly_click")
   })
 
@@ -313,23 +287,24 @@ server <- function(input, output, session) {
         div(class = "detail-header",
             span(class = "detail-flight-num", style = glue("color:{row$phase_color};"),
                  glue("Flight {row$flight_num}")),
-            if (row$anomaly_flag) span(class = "badge-anomaly", "ANOMALY")
+            if (row$final_flag) span(class = "badge-anomaly", "FINAL FLIGHT")
             else if (row$record_flag) span(class = "badge-record", "RECORD"),
             div(class = "small-muted",
                 glue("{format(row$earth_date, '%B %d, %Y')} · Sol {row$sol}")),
-            div(class = "small-muted",
-                glue("{row$mission_phase} · {row$flight_type}"))),
+            div(class = "small-muted", as.character(row$mission_phase))),
         div(class = "metric-grid",
             stat("Duration", glue("{row$duration_s} s"),
                  glue("{round(row$duration_s / 60, 1)} min")),
             stat("Max altitude", glue("{row$max_alt_m} m")),
-            stat("Distance", glue("{row$distance_m} m"),
-                 if (row$distance_m > 0) glue("{row$speed_ms} m/s avg") else "hover only"),
-            stat("Battery", glue("{row$battery_used}% used"),
-                 glue("{row$battery_start_pct}% → {row$battery_end_pct}%")),
-            stat("Images", row$images_taken),
-            stat("Science", row$science_measurements, "measurements")),
-        div(class = "detail-notes", row$notes),
+            stat("Distance", glue("{row$distance_m} m")),
+            stat("Top speed", glue("{row$max_speed_ms} m/s"),
+                 glue("{row$avg_speed_ms} m/s average")),
+            stat("Landing elevation", glue("{round(row$landing_elev_m)} m"),
+                 "relative to Mars datum"),
+            stat("Day of mission", glue("{row$days_since_f1}"), "days after flight 1")),
+        div(class = "detail-notes",
+            row$route,
+            if (row$records != "") tagList(br(), glue("New {row$records} record"))),
         div(class = "detail-nav",
             actionButton("prev_flight", "← Prev", class = "btn-sm btn-outline-light"),
             span(class = "small-muted", glue("{pos} of {length(fns)}")),
@@ -352,19 +327,24 @@ server <- function(input, output, session) {
 
     panels <- lapply(seq_along(METRICS), function(i) {
       col <- METRICS[[i]]
-      plot_ly(df, x = ~flight_num, y = as.formula(paste0("~", col)),
-              type = "bar", source = "metrics", customdata = ~flight_num,
-              marker = list(color = df$phase_color,
-                            line = list(color = "white",
-                                        width = ifelse(is_sel, 2.5, 0))),
-              hovertemplate = paste0("Flight %{x}<br>", names(METRICS)[i],
-                                     ": %{y}<extra></extra>")) |>
-        layout(xaxis = axis("Flight number"), yaxis = axis(names(METRICS)[i]))
+      hov <- paste0("Flight %{x}<br>", names(METRICS)[i], ": %{y}<extra></extra>")
+      p <- plot_ly(df, x = ~flight_num, y = as.formula(paste0("~", col)),
+                   source = "metrics", customdata = ~flight_num)
+      p <- if (col == "landing_elev_m") {
+        add_trace(p, type = "scatter", mode = "lines+markers",
+                  line = list(color = "#D4A96A"),
+                  marker = list(color = df$phase_color, size = ifelse(is_sel, 12, 5)),
+                  hovertemplate = hov)
+      } else {
+        add_bars(p, marker = list(color = df$phase_color,
+                                  line = list(color = "white", width = ifelse(is_sel, 2.5, 0))),
+                 hovertemplate = hov)
+      }
+      layout(p, xaxis = axis("Flight number"), yaxis = axis(names(METRICS)[i]))
     })
 
     subplot(panels, nrows = 2, shareX = TRUE, titleY = TRUE, margin = 0.06) |>
-      dark_layout(showlegend = FALSE, bargap = 0.2,
-                  margin = list(t = 30, l = 60, r = 10)) |>
+      dark_layout(showlegend = FALSE, bargap = 0.2, margin = list(t = 30, l = 60, r = 10)) |>
       event_register("plotly_click")
   })
 
@@ -373,21 +353,18 @@ server <- function(input, output, session) {
     df <- filtered()
     if (nrow(df) == 0) return(empty_plot())
     series <- list(
-      list("Distance (km)",         cumsum(df$distance_m) / 1000,     "#4ECDC4"),
-      list("Flight time (min)",     cumsum(df$duration_s) / 60,       "#45B7D1"),
-      list("Images",                cumsum(df$images_taken),          "#96CEB4"),
-      list("Science measurements",  cumsum(df$science_measurements),  "#FFD700")
+      list("Distance (km)",     cumsum(df$distance_m) / 1000, "#4ECDC4"),
+      list("Airtime (minutes)", cumsum(df$duration_s) / 60,   "#A78BFA")
     )
     panels <- lapply(series, function(s) {
       plot_ly(x = df$flight_num, y = s[[2]], type = "scatter", mode = "lines",
               fill = "tozeroy", source = "cumulative", customdata = df$flight_num,
-              line = list(color = s[[3]], width = 2),
-              fillcolor = paste0(s[[3]], "33"),
+              line = list(color = s[[3]], width = 2), fillcolor = paste0(s[[3]], "33"),
               hovertemplate = paste0("After flight %{x}<br>", s[[1]],
-                                     ": %{y:,.1f}<extra></extra>")) |>
-        layout(xaxis = axis("Flight number"), yaxis = axis(paste("Cumulative", tolower(s[[1]]))))
+                                     ": %{y:,.2f}<extra></extra>")) |>
+        layout(xaxis = axis("Flight number"), yaxis = axis(paste("Cumulative", s[[1]])))
     })
-    subplot(panels, nrows = 2, shareX = TRUE, titleY = TRUE, margin = 0.07) |>
+    subplot(panels, nrows = 1, titleX = TRUE, titleY = TRUE, margin = 0.07) |>
       dark_layout(showlegend = FALSE, margin = list(t = 30, l = 60, r = 10)) |>
       event_register("plotly_click")
   })
@@ -397,34 +374,33 @@ server <- function(input, output, session) {
     df <- filtered()
     if (nrow(df) == 0) return(empty_plot())
     sel <- selected_row()
-    top <- max(FLIGHTS$max_alt_m) * 1.12
+    top <- max(FLIGHTS$max_alt_m) * 1.15
 
-    bands <- lapply(PHASE_LEVELS, function(ph) {
-      rng <- range(FLIGHTS$flight_num[FLIGHTS$mission_phase == ph])
-      list(type = "rect", x0 = rng[1] - 0.5, x1 = rng[2] + 0.5, y0 = 0, y1 = top,
-           fillcolor = PHASE_COLORS[[ph]], opacity = 0.07, layer = "below",
-           line = list(width = 0))
+    spans <- FLIGHTS |> group_by(mission_phase) |>
+      summarise(lo = min(flight_num), hi = max(flight_num), .groups = "drop")
+    bands <- lapply(seq_len(nrow(spans)), function(i) {
+      list(type = "rect", x0 = spans$lo[i] - 0.5, x1 = spans$hi[i] + 0.5, y0 = 0, y1 = top,
+           fillcolor = PHASE_COLORS[[as.character(spans$mission_phase[i])]],
+           opacity = 0.08, layer = "below", line = list(width = 0))
     })
-    labels <- lapply(PHASE_LEVELS, function(ph) {
-      rng <- range(FLIGHTS$flight_num[FLIGHTS$mission_phase == ph])
-      list(x = mean(rng), y = top, text = ph, showarrow = FALSE, yanchor = "top",
-           font = list(color = PHASE_COLORS[[ph]], size = 10))
+    labels <- lapply(seq_len(nrow(spans)), function(i) {
+      ph <- as.character(spans$mission_phase[i])
+      list(x = (spans$lo[i] + spans$hi[i]) / 2, y = top, text = ph, showarrow = FALSE,
+           yanchor = "top", font = list(color = PHASE_COLORS[[ph]], size = 10))
     })
 
     p <- plot_ly(df, x = ~flight_num, y = ~max_alt_m, source = "timeline") |>
-      add_lines(line = list(color = "rgba(255,255,255,0.15)", width = 1),
-                hoverinfo = "skip") |>
+      add_lines(line = list(color = "rgba(255,255,255,0.15)", width = 1), hoverinfo = "skip") |>
       add_markers(
         customdata = ~flight_num, text = flight_hover(df), hoverinfo = "text",
-        marker = list(size = sqrt(pmax(df$distance_m, 1)) * 1.5 + 5,
+        marker = list(size = sqrt(pmax(df$distance_m, 1)) * 1.3 + 5,
                       color = ~duration_s, colorscale = "Viridis", showscale = TRUE,
                       colorbar = list(title = "Duration (s)", thickness = 12),
                       opacity = 0.85, line = list(width = 0.5, color = "white")))
     if (!is.null(sel)) {
-      p <- p |> add_markers(
-        data = sel, x = ~flight_num, y = ~max_alt_m, hoverinfo = "skip",
-        marker = list(size = 26, color = "rgba(0,0,0,0)",
-                      line = list(color = "yellow", width = 2.5)))
+      p <- p |> add_markers(data = sel, x = ~flight_num, y = ~max_alt_m, hoverinfo = "skip",
+                            marker = list(size = 28, color = "rgba(0,0,0,0)",
+                                          line = list(color = "yellow", width = 2.5)))
     }
     p |>
       dark_layout(
@@ -432,8 +408,7 @@ server <- function(input, output, session) {
         showlegend = FALSE, shapes = bands, annotations = labels,
         xaxis = axis("Flight number", dtick = 5),
         yaxis = axis("Max altitude (m)", range = c(0, top)),
-        margin = list(t = 70)
-      ) |>
+        margin = list(t = 70)) |>
       event_register("plotly_click")
   })
 
@@ -447,36 +422,33 @@ server <- function(input, output, session) {
     p <- plot_ly()
     if (isTRUE(input$anim_cumulative) && nrow(past) > 0) {
       p <- p |> add_paths(data = past, x = ~east_m, y = ~north_m, split = ~flight_num,
-                          color = ~I(phase_color), opacity = 0.3,
-                          line = list(width = 1.2), hoverinfo = "skip")
+                          color = ~I(phase_color), opacity = 0.35,
+                          line = list(width = 1.4), hoverinfo = "skip")
     }
     p |>
       add_paths(data = now, x = ~east_m, y = ~north_m,
                 line = list(color = row$phase_color, width = 4),
                 text = ~hover, hoverinfo = "text") |>
-      add_markers(data = now[nrow(now), ], x = ~east_m, y = ~north_m,
+      add_markers(data = now[nrow(now), ], x = ~east_m, y = ~north_m, hoverinfo = "skip",
                   marker = list(size = 12, color = "white",
-                                line = list(width = 2, color = "yellow")),
-                  hoverinfo = "skip") |>
+                                line = list(width = 2, color = "yellow"))) |>
       add_markers(x = 0, y = 0, hoverinfo = "skip",
                   marker = list(symbol = "star", size = 14, color = "#FFD700")) |>
       dark_layout(
         title = glue("<b>Flight {cur} of {N_FLIGHTS}</b> · ",
                      "{format(row$earth_date, '%B %d, %Y')} · Sol {row$sol}",
                      "<br><sup>{row$notes}</sup>"),
-        showlegend = FALSE, uirevision = "anim", margin = list(t = 70)
-      ) |>
-      map_axes()
+        showlegend = FALSE, uirevision = "anim", margin = list(t = 70)) |>
+      map_axes(MAP_X, MAP_Y)
   })
 
   # ── Data table ─────────────────────────────────────────────────────────────
   table_data <- reactive({
     filtered() |>
-      select(Flight = flight_num, Date = earth_date, Sol = sol,
-             Phase = mission_phase, Type = flight_type,
-             `Duration (s)` = duration_s, `Alt (m)` = max_alt_m,
-             `Dist (m)` = distance_m, `Battery %` = battery_used,
-             Images = images_taken, Science = science_measurements, Notes = notes)
+      select(Flight = flight_num, Date = earth_date, Sol = sol, Phase = mission_phase,
+             `Duration (s)` = duration_s, `Alt (m)` = max_alt_m, `Dist (m)` = distance_m,
+             `Top speed (m/s)` = max_speed_ms, From = from_airfield, To = to_airfield,
+             Records = records)
   })
 
   output$flight_table <- renderReactable({
@@ -484,8 +456,9 @@ server <- function(input, output, session) {
       table_data(), selection = "single", onClick = "select",
       searchable = TRUE, compact = TRUE, highlight = TRUE, defaultPageSize = 18,
       columns = list(
-        Notes = colDef(minWidth = 240),
-        Phase = colDef(minWidth = 120, style = function(value) {
+        From = colDef(minWidth = 150), To = colDef(minWidth = 150),
+        Records = colDef(minWidth = 140),
+        Phase = colDef(minWidth = 100, style = function(value) {
           list(color = PHASE_COLORS[[as.character(value)]], fontWeight = 600)
         })
       ),
@@ -506,9 +479,8 @@ server <- function(input, output, session) {
 
   output$download_csv <- downloadHandler(
     filename = function() glue("ingenuity_flights_{Sys.Date()}.csv"),
-    content  = function(file) {
-      write.csv(select(filtered(), -phase_color), file, row.names = FALSE)
-    }
+    content  = function(file) write.csv(select(filtered(), -phase_color), file,
+                                        row.names = FALSE)
   )
 }
 
